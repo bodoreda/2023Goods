@@ -1,0 +1,45 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: goods-service
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/goods
+    username: root
+    password: 1234
+  redis:
+    #    host: host.docker.internal
+    host: 0.0.0.0
+    port: 6379
+  jwt:
+    secret: thekeysizemustbegreaterthanorequalto256bits
+    token:
+      accessExpTime: 1200000   # 20분
+      refreshExpTime: 3600000 # 60분
+    servlet:
+      multipart:
+        max-file-size: 1MB
+        max-request-size: 10MB
+
+mybatis:
+  mapper-locations: repository/*.xml
+  type-aliases-package: msa.goods.v1.goods.dao
+
+logging:
+  level:
+    root: INFO
+    msa.external.v1.nicepay: TRACE
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+nicepay:
+  merchantKey: EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==
+  merchantID: nicepay00m
+
+file:
+  dir: D:/2023/msa-frontend/src/assets/image/

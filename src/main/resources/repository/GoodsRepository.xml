@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="msa.goods.v1.goods.dao.GoodsDao">
+    <select id="getGoodsList" resultType="msa.goods.v1.goods.dto.GoodsListDto">
+        SELECT
+            goodsId,
+            goodsName,
+            goodsPrice,
+            sellerCuid,
+            thumbnailImageName
+        FROM (
+            SELECT
+                b.GOODS_ID as goodsId,
+                b.GOODS_NAME as goodsName,
+                b.GOODS_PRICE as goodsPrice,
+                b.SELLER_CUID as sellerCuid,
+                i.GOODS_IMAGE_NAME as thumbnailImageName,
+                ROW_NUMBER() OVER (PARTITION BY b.GOODS_ID ORDER BY i.GOODS_IMAGE_NAME) as rn
+        FROM goods_bsc b
+        LEFT JOIN goods_img i
+        ON b.GOODS_ID = i.GOODS_ID
+        ) subquery
+        WHERE rn = 1;
+    </select>
+
+    <insert id="insertGoodsInfo" parameterType="msa.goods.v1.goods.dto.GoodsInfoDto">
+        <selectKey keyProperty="goodsId" resultType="integer" order="AFTER">
+            SELECT LAST_INSERT_ID() as goods_id
+        </selectKey>
+        INSERT INTO goods_bsc (
+            GOODS_NAME,
+            GOODS_PRICE,
+            GOODS_STOCK,
+            GOODS_DESCRIPTION,
+            SELLER_CUID
+        ) VALUES (
+            #{goodsName},
+            #{goodsPrice},
+            #{goodsStock},
+            #{goodsDescription},
+            #{sellerCuid}
+        )
+    </insert>
+
+    <insert id="insertGoodsImageInfo" parameterType="java.util.List">
+        INSERT INTO goods_img (
+            GOODS_ID,
+            GOODS_IMAGE_NAME
+        ) VALUES
+        <foreach collection="list" item="goodsImageInfo" separator=",">
+            (
+                #{goodsImageInfo.goodsId},
+                #{goodsImageInfo.goodsImageName}
+            )
+        </foreach>
+    </insert>
+</mapper>
